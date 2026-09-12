@@ -1,4 +1,6 @@
-# Bun Elysia Tailwind HTMX Starter
+# Macro Budget
+
+a top-down approach for lazy budgeting
 
 ## setup
 
