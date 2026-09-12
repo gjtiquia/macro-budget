@@ -1,0 +1,33 @@
+{
+    "name": "bun-elysia-tailwind-htmx-starter",
+    "version": "1.0.50",
+    "scripts": {
+        "start": "bun run build && bun run src/index.tsx",
+        "dev": "tsc --noEmit && concurrently 'bun run dev:server' 'bun run dev:tailwind' 'bun run dev:scripts'",
+        "dev:server": "bun run --watch src/index.tsx",
+        "dev:tailwind": "tailwindcss -i ./src/pages/input.css -o ./src/pages/public/styles.css --watch",
+        "dev:scripts": "bun build ./src/pages/scripts/index.ts --outdir ./src/pages/public/ --watch",
+        "build": "tsc --noEmit && bun run build:tailwind && bun run build:scripts",
+        "build:tailwind": "tailwindcss -i ./src/pages/input.css -o ./src/pages/public/styles.css",
+        "build:scripts": "bun build ./src/pages/scripts/index.ts --outdir ./src/pages/public/",
+        "db:push": "drizzle-kit push",
+        "db:validate": "drizzle-kit push --explain"
+    },
+    "dependencies": {
+        "@elysia/html": "^1.4.1",
+        "@elysia/static": "^1.4.11",
+        "dotenv": "^17.4.2",
+        "drizzle-kit": "1.0.0-rc.4",
+        "drizzle-orm": "^1.0.0-rc.4",
+        "elysia": "latest"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.3.3",
+        "@types/bun": "^1.4.2",
+        "bun-types": "latest",
+        "concurrently": "^10.0.4",
+        "prettier": "^3.9.6",
+        "tailwindcss": "^4.3.3"
+    }
+}
+
