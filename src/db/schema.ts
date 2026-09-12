@@ -176,6 +176,19 @@ export const transactionTagsTable = sqliteTable("transaction_tags_table", {
     createdAt: int({ mode: "timestamp_ms" }).notNull(),
 });
 
+export const budgetCategoriesTable = sqliteTable("budget_categories_table", {
+    // --- required
+    id: int().primaryKey({ autoIncrement: true }),
+    name: text().notNull(), // not unique, users may use same name, check duplicates per-user
+
+    // --- required with defaults
+    notes: text().notNull().default(""),
+
+    // TODO : should default to Date now (see best practices if this is encouraged)
+    createdAt: int({ mode: "timestamp_ms" }).notNull(),
+    updatedAt: int({ mode: "timestamp_ms" }).notNull(),
+});
+
 // very similar in spirit to accounts
 // but much simplified by design - one category, no tags, no parent/child
 export const budgetsTable = sqliteTable("budgets_table", {
@@ -216,18 +229,21 @@ export const budgetAllocationsTable = sqliteTable("budget_allocations_table", {
     updatedAt: int({ mode: "timestamp_ms" }).notNull(),
 });
 
-export const budgetCategoriesTable = sqliteTable("budget_categories_table", {
-    // --- required
-    id: int().primaryKey({ autoIncrement: true }),
-    name: text().notNull(), // not unique, users may use same name, check duplicates per-user
+export const owedLedgerCategoriesTable = sqliteTable(
+    "owed_ledger_categories_table",
+    {
+        // --- required
+        id: int().primaryKey({ autoIncrement: true }),
+        name: text().notNull(), // not unique, users may use same name, check duplicates per-user
 
-    // --- required with defaults
-    notes: text().notNull().default(""),
+        // --- required with defaults
+        notes: text().notNull().default(""),
 
-    // TODO : should default to Date now (see best practices if this is encouraged)
-    createdAt: int({ mode: "timestamp_ms" }).notNull(),
-    updatedAt: int({ mode: "timestamp_ms" }).notNull(),
-});
+        // TODO : should default to Date now (see best practices if this is encouraged)
+        createdAt: int({ mode: "timestamp_ms" }).notNull(),
+        updatedAt: int({ mode: "timestamp_ms" }).notNull(),
+    },
+);
 
 // very similar in spirit to accounts
 // but much simplified by design - one category, no tags, no parent/child
@@ -270,6 +286,7 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
 
     // can be positive (i owe money) or negative (i returned money)
     // uses account currency scale for number of decimal places
+    // if formula is non-empty, this should be derived from formula
     unscaledAmount: int().notNull(),
 
     // --- required with defaults
@@ -281,18 +298,3 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
     updatedAt: int({ mode: "timestamp_ms" }).notNull(),
 });
 
-export const owedLedgerCategoriesTable = sqliteTable(
-    "owed_ledger_categories_table",
-    {
-        // --- required
-        id: int().primaryKey({ autoIncrement: true }),
-        name: text().notNull(), // not unique, users may use same name, check duplicates per-user
-
-        // --- required with defaults
-        notes: text().notNull().default(""),
-
-        // TODO : should default to Date now (see best practices if this is encouraged)
-        createdAt: int({ mode: "timestamp_ms" }).notNull(),
-        updatedAt: int({ mode: "timestamp_ms" }).notNull(),
-    },
-);
