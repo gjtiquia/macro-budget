@@ -293,7 +293,7 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
     timestamp: int({ mode: "timestamp_ms" }).notNull(),
 
     // can be positive (money owed to me) or negative (the money is returned to me)
-    // uses owed ledger currency scale for number of decimal places
+    // uses currency scale for number of decimal places
     // if formula is non-empty, this should be derived from formula
     unscaledAmount: int().notNull(),
 
