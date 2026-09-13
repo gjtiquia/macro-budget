@@ -1,6 +1,19 @@
 # Macro Budget
 
 a top-down approach for lazy budgeting
+- the opposite of entering every transaction
+- the more data we input, the more useful the insights
+- but just a bit of data can still give useful insights
+- start by inputting account balance snapshots
+  - the "gaps" between snapshots are assumed flat
+- this already gives
+  - monthly start, end, net change, highs, lows
+- we can then budget what we have
+  - referencing YNAB / envelop-based budgeting, we dont budget based on income
+  - we budget every dollar that we have, "giving every dollar a job"
+- we can then input income transactions
+- from that we can infer monthly expenses (= income - monthly net change)
+- we can also mark down money that people owe us, so we wont forget
 
 ## setup
 
