@@ -37,13 +37,13 @@ export const userActionHistoryTable = sqliteTable("user_action_history_table", {
 });
 
 // this is more like a "cache" for objective truth lazily pulled from online sources
-// for now... we dont need to support currency snapshots... i guess
+// for now... we dont need to support currency snapshots... for now we accept that historical totals will fluctuate based on today's rate
 export const currenciesTable = sqliteTable("currencies_table", {
     id: int().primaryKey({ autoIncrement: true }),
     code: text().unique().notNull(),
     name: text().notNull(),
     scale: int().notNull(), // decides how many decimals a currency has
-    rateToUsdAmount: int().notNull(),
+    rateToUsdAmount: int().notNull(), // this currency * this rate = amount in USD. eg. 1 HKD is 0.1275 USD, so the rate is 1275, rate scale 10000
     rateToUsdScale: int().notNull(), // can be different from scale, the rate might be very granular
 
     // TODO : should default to Date now (see best practices if this is encouraged)
@@ -82,7 +82,7 @@ export const accountBalancesTable = sqliteTable("account_balances_table", {
     accountId: int()
         .references(() => accountsTable.id)
         .notNull(),
-    timestamp: int({ mode: "timestamp_ms" }),
+    timestamp: int({ mode: "timestamp_ms" }).notNull(),
 
     // can be negative (eg. credit card debts)
     // uses account currency scale for number of decimal places
@@ -99,7 +99,7 @@ export const accountBalancesTable = sqliteTable("account_balances_table", {
 // with income transactions, can infer monthly expenses
 // with parent expense transactions, can broadly track expenses without each individual child expense
 export const transactionTypes = ["income", "expense"] as const;
-export type TransactionTypes = (typeof transactionTypes)[number];
+export type TransactionType = (typeof transactionTypes)[number];
 export const accountTransactionsTable = sqliteTable(
     "account_transactions_table",
     {
@@ -117,10 +117,10 @@ export const accountTransactionsTable = sqliteTable(
             .references(() => currenciesTable.id)
             .notNull(),
 
-        timestamp: int({ mode: "timestamp_ms" }),
+        timestamp: int({ mode: "timestamp_ms" }).notNull(),
 
         // always positive, use type (income/expense) for differentiating +/-
-        // uses account currency scale for number of decimal places
+        // uses currency scale for number of decimal places
         unscaledAmount: int().notNull(),
 
         // --- required with defaults
@@ -154,10 +154,14 @@ export const tagsTable = sqliteTable("tags_table", {
 export const accountTagsTable = sqliteTable("account_tags_table", {
     // TODO : primary key is accountId,tagId
 
-    accountId: int().references(() => accountsTable.id, {
-        onDelete: "cascade",
-    }),
-    tagId: int().references(() => tagsTable.id, { onDelete: "cascade" }),
+    accountId: int()
+        .references(() => accountsTable.id, {
+            onDelete: "cascade",
+        })
+        .notNull(),
+    tagId: int()
+        .references(() => tagsTable.id, { onDelete: "cascade" })
+        .notNull(),
 
     // TODO : should default to Date now (see best practices if this is encouraged)
     createdAt: int({ mode: "timestamp_ms" }).notNull(),
@@ -167,10 +171,14 @@ export const accountTagsTable = sqliteTable("account_tags_table", {
 export const transactionTagsTable = sqliteTable("transaction_tags_table", {
     // TODO : primary key is transactionId,tagId
 
-    transactionId: int().references(() => accountTransactionsTable.id, {
-        onDelete: "cascade",
-    }),
-    tagId: int().references(() => tagsTable.id, { onDelete: "cascade" }),
+    transactionId: int()
+        .references(() => accountTransactionsTable.id, {
+            onDelete: "cascade",
+        })
+        .notNull(),
+    tagId: int()
+        .references(() => tagsTable.id, { onDelete: "cascade" })
+        .notNull(),
 
     // TODO : should default to Date now (see best practices if this is encouraged)
     createdAt: int({ mode: "timestamp_ms" }).notNull(),
@@ -212,13 +220,13 @@ export const budgetsTable = sqliteTable("budgets_table", {
 });
 
 // very similar in spirit to account balances, NOT transactions
-export const budgetAllocationsTable = sqliteTable("budget_allocations_table", {
+export const budgetBalancesTable = sqliteTable("budget_balances_table", {
     // --- required
     id: int().primaryKey({ autoIncrement: true }),
     budgetId: int()
         .references(() => budgetsTable.id)
         .notNull(),
-    timestamp: int({ mode: "timestamp_ms" }),
+    timestamp: int({ mode: "timestamp_ms" }).notNull(),
     unscaledAmount: int().notNull(), // uses account currency scale for number of decimal places
 
     // --- required with defaults
@@ -282,9 +290,9 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
         .references(() => currenciesTable.id)
         .notNull(),
 
-    timestamp: int({ mode: "timestamp_ms" }),
+    timestamp: int({ mode: "timestamp_ms" }).notNull(),
 
-    // can be positive (i owe money) or negative (i returned money)
+    // can be positive (money owed to me) or negative (the money is returned to me)
     // uses account currency scale for number of decimal places
     // if formula is non-empty, this should be derived from formula
     unscaledAmount: int().notNull(),
@@ -297,4 +305,3 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
     createdAt: int({ mode: "timestamp_ms" }).notNull(),
     updatedAt: int({ mode: "timestamp_ms" }).notNull(),
 });
-
