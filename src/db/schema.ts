@@ -22,7 +22,7 @@ export const userActions = ["create", "edit", "delete"] as const;
 export type UserAction = (typeof userActions)[number];
 export const userActionHistoryTable = sqliteTable("user_action_history_table", {
     // --- required
-    id: int().primaryKey(),
+    id: int().primaryKey({ autoIncrement: true }),
     timestamp: int({ mode: "timestamp_ms" }).notNull(),
     action: text({ enum: userActions }).notNull(),
 
@@ -227,7 +227,7 @@ export const budgetBalancesTable = sqliteTable("budget_balances_table", {
         .references(() => budgetsTable.id)
         .notNull(),
     timestamp: int({ mode: "timestamp_ms" }).notNull(),
-    unscaledAmount: int().notNull(), // uses account currency scale for number of decimal places
+    unscaledAmount: int().notNull(), // uses budget currency scale for number of decimal places
 
     // --- required with defaults
     notes: text().notNull().default(""),
@@ -293,7 +293,7 @@ export const owedTransactionsTable = sqliteTable("owed_transactions_table", {
     timestamp: int({ mode: "timestamp_ms" }).notNull(),
 
     // can be positive (money owed to me) or negative (the money is returned to me)
-    // uses account currency scale for number of decimal places
+    // uses owed ledger currency scale for number of decimal places
     // if formula is non-empty, this should be derived from formula
     unscaledAmount: int().notNull(),
 
